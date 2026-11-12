@@ -4,9 +4,31 @@ let client=null,user=null,profiles=[],activeRecipient=null,profile=null;
 const report=(msg)=>{status.textContent=msg};
 const safe=(s)=>String(s||'').slice(0,1000);
 const showMessages=(node,items,kind)=>{node.replaceChildren();items.forEach(m=>{const div=document.createElement('div');div.className=kind==='signal'?'signal':'message';const name=document.createElement('strong');const sender=profiles.find(p=>p.id===m.sender_id);name.textContent=kind==='signal'?'✦ '+safe(m.constellation):safe(sender?.display_name||'Joueur');const body=document.createElement('div');body.textContent=safe(m.body);div.append(name,body);node.append(div)})};
-async function loadProfiles(){const {data,error}=await client.from('profiles').select('id,display_name,role').order('display_name');if(error)throw error;profiles=data||[];profile=profiles.find(p=>p.id===user.id);$('mj-panel').hidden=profile?.role!=='mj';const select=$('net-recipient'),mj=$('mj-recipient');for(const el of [select,mj]){const selected=el.value;el.replaceChildren();profiles.filter(p=>p.id!==user.id).forEach(p=>{const opt=document.createElement('option');opt.value=p.id;opt.textContent=p.display_name;el.append(opt)});if([...el.options].some(o=>o.value===selected))el.value=selected}activeRecipient=select.value}
+async function loadProfiles(){const {data,error}=await client.from('profiles').select('id,display_name,role').order('display_name');if(error)throw error;profiles=data||[];profile=profiles.find(p=>p.id===user.id);const isMJ = profile?.role === 'mj';
+
+$('mj-panel').hidden = !isMJ;
+$('mneme-tab').hidden = !isMJ;
+
+if (!isMJ) {
+  $('constellation').hidden = true;
+  const accueil = document.querySelector(
+    'nav button[data-page="accueil"]'
+  );
+  if (document.querySelector(
+    'nav button[data-page="constellation"].active'
+  )) {
+    accueil.click();
+  }
+}const select=$('net-recipient'),mj=$('mj-recipient');for(const el of [select,mj]){const selected=el.value;el.replaceChildren();profiles.filter(p=>p.id!==user.id).forEach(p=>{const opt=document.createElement('option');opt.value=p.id;opt.textContent=p.display_name;el.append(opt)});if([...el.options].some(o=>o.value===selected))el.value=selected}activeRecipient=select.value}
 async function refresh(){if(!client||!user)return;try{await loadProfiles();const {data,error}=await client.from('private_messages').select('id,sender_id,recipient_id,body,created_at').order('created_at',{ascending:true}).limit(100);if(error)throw error;showMessages($('net-messages'),(data||[]).filter(m=>(m.sender_id===user.id&&m.recipient_id===activeRecipient)||(m.sender_id===activeRecipient&&m.recipient_id===user.id)),'chat');const signals=await client.from('constellation_messages').select('id,sender_id,recipient_id,constellation,body,created_at').order('created_at',{ascending:false}).limit(30);if(signals.error)throw signals.error;showMessages($('net-signals'),signals.data||[],'signal');report('✧ Réseau connecté · '+(profile?.display_name||'Joueur')+(profile?.role==='mj'?' · MJ':''))}catch(err){report('Erreur réseau : '+err.message)}}
-async function updateAuth(){const {data:{user:current}}=await client.auth.getUser();user=current;if(user){await refresh()}else{profile=null;$('mj-panel').hidden=true;$('net-messages').replaceChildren();$('net-signals').replaceChildren();report('Réseau prêt · connecte-toi ou crée ton compte.')}}
+async function updateAuth(){const {data:{user:current}}=await client.auth.getUser();user=current;if(user){await refresh()}else{profile=null;
+$('mj-panel').hidden=true;
+$('mneme-tab').hidden=true;
+$('constellation').hidden=true;
+
+if (document.querySelector('#mneme-tab.active')) {
+  document.querySelector('nav button[data-page="accueil"]').click();
+}$('net-messages').replaceChildren();$('net-signals').replaceChildren();report('Réseau prêt · connecte-toi ou crée ton compte.')}}
 if(!SUPABASE_URL||!SUPABASE_PUBLISHABLE_KEY){report('Mode local actif : configure config.js et la base Supabase pour activer les vrais messages.')}else{
 try{const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');client=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});await updateAuth();client.auth.onAuthStateChange(()=>{setTimeout(()=>updateAuth().catch(e=>report(e.message)),0)});setInterval(()=>{if(user&&document.visibilityState==='visible')refresh()},7000)}catch(err){report('Impossible de démarrer Supabase : '+err.message)}
 }
