@@ -49,7 +49,7 @@ input,textarea,select{background:#0b0e23dd;border-color:#b394f480}input:focus,te
 <button data-page="joueurs">Joueurs</button><button data-page="journal">Journal</button><button data-page="reseau">Réseau ✧</button></nav>
 <section id="accueil"><div class="system-strip"><span>✦ SYSTÈME ACTIF</span><span>CHAPITRE I — LE RÉVEIL</span><span>ACCÈS : PROTOTYPE LOCAL</span></div><div class="holo-hero"><div><h2>Bienvenue dans le Système</h2><p>Paris. Les constellations observent. Vos choix écrivent l'histoire.</p><p class="muted">Les étoiles ont commencé à vous regarder.</p><button id="notification">✧ Détecter une présence</button><div id="alerte" class="holo-signal" role="status" hidden></div></div><div class="holo-ring" aria-hidden="true"><span>✦</span></div></div></section>
 <section id="messages" hidden><h2>Messages — Démonstration</h2><p class="muted">Ces messages restent sur cet appareil. Ils ne sont pas envoyés à d'autres joueurs.</p><div id="fil"></div><form id="chat" class="row"><input id="texte" placeholder="Écrire un message…" maxlength="300" required aria-label="Votre message"><button>Envoyer</button></form></section>
-<section id="fiche" hidden><h2>✧ Fiche holographique</h2><p class="muted">Fiche locale éditable. Valeurs d'exemple, à définir avec le MJ. Les statistiques ne sont pas encore synchronisées entre appareils.</p><div class="holo-grid"><div class="holo-panel"><h3>Identité</h3><label>Personnage<input id="char-name" maxlength="32" value="Ethan"></label><p>Rôle : Joueur</p><p>PV : <strong id="pv">85</strong> / <span id="pv-max-label">85</span></p><div class="bar"><div id="pv-bar" style="width:100%"></div></div><div class="row"><button id="soin">+5 PV</button><button id="degats">−5 PV</button></div><label>PV maximum<input id="pv-max" type="number" min="1" max="9999" value="85"></label></div><div class="holo-panel"><h3>Caractéristiques</h3><div id="char-stats"></div></div><div class="holo-panel"><h3>Inventaire</h3><form id="inventory-form" class="row"><input id="inventory-input" maxlength="80" placeholder="Nouvel objet…" required><button>+</button></form><div id="inventory-list"></div></div></div><p class="micro">Les valeurs sont conservées sur cet appareil. Exporte tes données depuis le Journal avant une réinstallation.</p></section>
+<section id="fiche" hidden><h2>✧ Fiche holographique</h2><p class="muted">Fiche locale éditable. Valeurs d'exemple, à définir avec le MJ. Les statistiques ne sont pas encore synchronisées entre appareils.</p><div class="holo-grid"><div class="holo-panel"><h3>Identité</h3><label>Personnage<input id="char-name" maxlength="32" value="Ethan"></label><p>Rôle : Joueur</p><p>PV : <strong id="pv">85</strong> / <span id="pv-max-label">85</span></p><div class="bar"><div id="pv-bar" style="width:100%"></div></div><div class="row"><button id="soin">+5 PV</button><button id="degats">−5 PV</button></div><label>PV maximum<input id="pv-max" type="number" min="1" max="9999" value="85"></label></div><div class="holo-panel"><h3>Caractéristiques</h3><div id="char-stats"></div></div><div class="holo-panel"><h3>Inventaire</h3><form id="inventory-form" class="row"><input id="inventory-input" maxlength="80" placeholder="Nouvel objet…" required><button>+</button></form><h3>Inventaire synchronisé</h3><p id="online-inventory-status" class="muted"></p><div id="online-inventory"></div><h3>Objets locaux</h3><div id="inventory-list"></div></div></div><p class="micro">Les valeurs sont conservées sur cet appareil. Exporte tes données depuis le Journal avant une réinstallation.</p></section>
 <section id="boutique" hidden>
   <h2>✧ Le Marché des Survivants</h2>
   <p class="muted">
@@ -58,7 +58,7 @@ input,textarea,select{background:#0b0e23dd;border-color:#b394f480}input:focus,te
 
   <div class="holo-panel">
     <h3>◈ Ta bourse</h3>
-    <p><strong id="shop-coins">100</strong> pièces</p>
+    <p><strong id="shop-coins">—</strong> pièces</p>
   </div>
 
   <h3>✦ Objets disponibles</h3>
@@ -78,12 +78,41 @@ input,textarea,select{background:#0b0e23dd;border-color:#b394f480}input:focus,te
     <p id="shop-admin-status" class="status" role="status"></p>
   </div>
 
+  <div id="reward-panel" class="holo-panel" hidden>
+    <h3>Récompenses · MJ</h3>
+    <form id="reward-form">
+      <fieldset id="reward-players"><legend>Joueurs à récompenser</legend><div id="reward-options"></div></fieldset>
+      <div class="row">
+        <label>Pièces par joueur <input id="reward-amount" type="number" min="1" max="999999" required></label>
+        <label>Motif <input id="reward-reason" maxlength="120" placeholder="Victoire sur le quai" required></label>
+        <button type="submit">Distribuer</button>
+      </div>
+      <p id="reward-total" class="muted"></p>
+    </form>
+    <details>
+      <summary>Reprendre une ancienne bourse et ses objets</summary>
+      <p class="muted">À faire avant le premier achat ou la première récompense du joueur.</p>
+      <form id="opening-form">
+        <label>Joueur <select id="opening-player" required></select></label>
+        <label>Ancien solde <input id="opening-balance" type="number" min="0" max="999999" required></label>
+        <label>Objets à reprendre, un par ligne <textarea id="opening-items"></textarea></label>
+        <button type="submit">Reprendre la fiche</button>
+      </form>
+    </details>
+    <p id="reward-status" class="status" role="status"></p>
+  </div>
+
   <div class="holo-panel" style="margin-top:16px">
-    <h3>Historique des achats</h3>
+    <h3>Historique de la bourse</h3>
     <div id="shop-history"></div>
   </div>
 
-  <p id="shop-status" class="status" role="status"></p>
+  <p id="shop-status" class="status" role="status">Connecte-toi dans Réseau pour accéder à ta bourse.</p>
+  <details>
+    <summary>Ancienne bourse sur cet appareil</summary>
+    <p id="legacy-coins"></p>
+    <div id="legacy-history"></div>
+  </details>
 </section>
 <section id="reseau" hidden>
   <h2>✧ Réseau des survivants</h2><p class="muted">Comptes et messages privés via Supabase. La connexion nécessite une configuration préalable. Discord reste utilisé pour la voix.</p><div id="net-status" class="status" role="status">Réseau non configuré.</div><div class="holo-grid"><div class="holo-panel"><h3>Connexion</h3><form id="auth-form" class="stack"><label>Nom de personnage (inscription seulement)<input id="auth-name" maxlength="32" placeholder="Ethan, Yahkoub…"></label><label>Email<input id="auth-email" type="email" required autocomplete="email"></label><label>Mot de passe<input id="auth-pass" type="password" minlength="8" required autocomplete="current-password"></label><div class="action-row"><button type="submit" id="auth-login">Se connecter</button><button type="button" id="auth-signup">Créer mon compte</button><button type="button" id="auth-logout">Déconnexion</button></div></form></div><div class="holo-panel"><h3>Canal privé</h3><label>Destinataire<select id="net-recipient"><option value="">Connecte-toi d'abord</option></select></label><div id="net-messages" aria-live="polite" style="max-height:320px;overflow:auto;margin:10px 0"></div><form id="net-form" class="stack"><input id="net-text" maxlength="1000" placeholder="Message privé…" required><button>Transmettre</button></form><p class="micro">Chaque message n'est accessible qu'à son expéditeur et son destinataire grâce aux règles de la base de données. Pas de chiffrement de bout en bout.</p></div></div><div class="holo-panel" id="mj-panel" hidden style="margin-top:15px"><h3>✦ Console du MJ</h3><p class="micro">Le rôle MJ est attribué uniquement depuis le tableau de bord Supabase.</p><label>Constellation<select id="mj-constellation"><option>Mnémé</option><option>Constellation inconnue</option></select></label><label>Destinataire<select id="mj-recipient"></select></label><form id="mj-form" class="stack"><textarea id="mj-text" maxlength="1000" placeholder="Transmission de la constellation…" required></textarea><button>Émettre le signal</button></form></div><div class="holo-panel" style="margin-top:15px"><h3>✧ Transmissions reçues</h3><div id="net-signals"></div></div></section>
@@ -91,7 +120,7 @@ input,textarea,select{background:#0b0e23dd;border-color:#b394f480}input:focus,te
 <section id="constellation" hidden><div class="star">✦</div><h2>MNÉMÉ</h2><p class="muted">Constellation alliée — Relation amicale</p><blockquote>« Je t'observe, Ethan. Continue d'avancer. Tu n'es pas seul. »</blockquote><p>Une présence silencieuse veille sur toi.</p><button id="signe">Recevoir un message de Mnémé</button><div id="signes" aria-live="polite"></div><p class="micro">Les transmissions réelles et privées apparaissent dans l’onglet Réseau.</p></section>
 <section id="joueurs" hidden><h2>Les survivants</h2><p class="muted">Fiches de démonstration. Les statistiques réelles seront définies avec le MJ.</p><div class="cards"><div class="card"><strong>Ethan</strong><span>Joueur · Mnémé : alliée</span></div><div class="card"><strong>Yahkoub</strong><span>Joueur · Constellation inconnue</span></div><div class="card"><strong>Guillaume</strong><span>Joueur · Constellation inconnue</span></div><div class="card"><strong>Noah</strong><span>Joueur · Constellation inconnue</span></div></div></section>
 <section id="journal" hidden><h2>Journal du Système</h2><p class="muted">Notes privées enregistrées uniquement sur ce navigateur.</p><form id="noteform"><textarea id="note" maxlength="500" placeholder="Un événement important s'est produit…" required></textarea><div class="row"><button>Ajouter au journal</button><button type="button" id="exporter">Exporter mes données</button></div></form><div id="notes"></div></section>
-</main><footer>ASTRÉLYS V0.7 · Interface holographique · Réseau optionnel</footer>
+</main><footer>ASTRÉLYS V0.8 · Interface holographique · Réseau optionnel</footer>
 <script>
 const pages=[...document.querySelectorAll('main section')];document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{pages.forEach(s=>s.hidden=s.id!==b.dataset.page);document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x===b))}));
 document.getElementById('notification').addEventListener('click',()=>{(document.getElementById('alerte').hidden=false,document.getElementById('alerte').textContent='✦ CONSTELLATION DÉTECTÉE — MNÉMÉ · ALLIÉE')});
@@ -121,82 +150,17 @@ const statsEl=document.getElementById('char-stats');defaultStats.forEach(k=>{con
 const inventoryEl=document.getElementById('inventory-list');function renderInventory(){inventoryEl.replaceChildren();charData.inventory.forEach((item,i)=>{const div=document.createElement('div');div.className='stat-line';const text=document.createElement('span');text.textContent=item;const btn=document.createElement('button');btn.textContent='×';btn.setAttribute('aria-label','Supprimer '+item);btn.onclick=()=>{charData.inventory.splice(i,1);saveChar();renderInventory()};div.append(text,btn);inventoryEl.append(div)})}renderInventory();document.getElementById('inventory-form').onsubmit=e=>{e.preventDefault();const inp=document.getElementById('inventory-input');if(!inp.value.trim())return;charData.inventory.push(inp.value.trim());saveChar();renderInventory();inp.value=''};
 
 
-let shopItems = [];
-document.addEventListener('astrelys:catalog', ({detail}) => {
-  shopItems = detail;
-  renderShop();
-});
-
-const shopContainer = document.getElementById('shop-items');
-const shopCoinsEl = document.getElementById('shop-coins');
-const shopHistoryEl = document.getElementById('shop-history');
-const shopStatusEl = document.getElementById('shop-status');
-
-let shopCoins = Number(localStorage.getItem('astrelys-shop-coins'));
-if (!Number.isFinite(shopCoins) || shopCoins < 0) {
-  shopCoins = 100;
+const legacyBalance = localStorage.getItem('astrelys-shop-coins') ?? '100';
+document.getElementById('legacy-coins').textContent = legacyBalance + ' pièces enregistrées localement.';
+const legacyHistory = read('astrelys-shop-history', []);
+for (const entry of Array.isArray(legacyHistory) ? legacyHistory : []) {
+  const line = document.createElement('div');
+  line.textContent = entry;
+  document.getElementById('legacy-history').append(line);
 }
-if (localStorage.getItem('astrelys-shop-coins') === null) {
-  shopCoins = 100;
-}
-
-let shopHistory = read('astrelys-shop-history', []);
-
-function renderShop() {
-  shopCoinsEl.textContent = shopCoins;
-  shopContainer.replaceChildren();
-  shopHistoryEl.replaceChildren();
-
-  shopItems.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'holo-panel';
-
-    const title = document.createElement('h3');
-    title.textContent = item.icon + ' ' + item.name;
-
-    const price = document.createElement('p');
-    price.textContent = item.price + ' ◈';
-
-    const buyButton = document.createElement('button');
-    buyButton.textContent = 'Acheter';
-    buyButton.disabled = shopCoins < item.price;
-
-    buyButton.onclick = () => {
-      if (shopCoins < item.price) {
-        shopStatusEl.textContent = 'Pièces insuffisantes.';
-        return;
-      }
-
-      shopCoins -= item.price;
-      charData.inventory.push(item.name);
-      shopHistory.push(item.name + ' — ' + item.price + ' ◈');
-
-      localStorage.setItem('astrelys-shop-coins', String(shopCoins));
-      localStorage.setItem('astrelys-shop-history', JSON.stringify(shopHistory));
-      saveChar();
-      renderInventory();
-
-      shopStatusEl.textContent = item.name + ' ajouté à ton inventaire !';
-      renderShop();
-    };
-
-    card.append(title, price, buyButton);
-    shopContainer.append(card);
-  });
-
-  shopHistory.slice().reverse().forEach(entry => {
-    const line = document.createElement('div');
-    line.className = 'log';
-    line.textContent = entry;
-    shopHistoryEl.append(line);
-  });
-}
-
-renderShop();
-
 </script><script>
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service worker:', err)));
 }
 </script>
-<script type="module" src="./network.js"></script></body></html>
+<script type="module" src="./network.js?v=08"></script></body></html>

@@ -1,7 +1,8 @@
-import { connectCatalog } from './catalog.js';
+import { connectCatalog } from './catalog.js?v=08';
+import { connectEconomy } from './economy.js?v=08';
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from './config.js';
 const $=id=>document.getElementById(id),status=$('net-status');
-let syncCatalog=()=>{};
+let syncCatalog=()=>{}, syncEconomy=()=>{};
 let client=null,user=null,profiles=[],activeRecipient=null,profile=null;
 const report=(msg)=>{status.textContent=msg};
 const safe=(s)=>String(s||'').slice(0,1000);
@@ -9,6 +10,7 @@ const showMessages=(node,items,kind)=>{node.replaceChildren();items.forEach(m=>{
 async function loadProfiles(){const {data,error}=await client.from('profiles').select('id,display_name,role').order('display_name');if(error)throw error;profiles=data||[];profile=profiles.find(p=>p.id===user.id);const isMJ = profile?.role === 'mj';
 
 $('mj-panel').hidden = !isMJ;
+syncEconomy(user.id, isMJ, profiles);
 syncCatalog(user.id, isMJ);
 $('mneme-tab').hidden = !isMJ;
 
@@ -26,6 +28,7 @@ if (!isMJ) {
 async function refresh(){if(!client||!user)return;try{await loadProfiles();const {data,error}=await client.from('private_messages').select('id,sender_id,recipient_id,body,created_at').order('created_at',{ascending:true}).limit(100);if(error)throw error;showMessages($('net-messages'),(data||[]).filter(m=>(m.sender_id===user.id&&m.recipient_id===activeRecipient)||(m.sender_id===activeRecipient&&m.recipient_id===user.id)),'chat');const signals=await client.from('constellation_messages').select('id,sender_id,recipient_id,constellation,body,created_at').order('created_at',{ascending:false}).limit(30);if(signals.error)throw signals.error;showMessages($('net-signals'),signals.data||[],'signal');report('✧ Réseau connecté · '+(profile?.display_name||'Joueur')+(profile?.role==='mj'?' · MJ':''))}catch(err){report('Erreur réseau : '+err.message)}}
 async function updateAuth(){const {data:{user:current}}=await client.auth.getUser();user=current;if(user){await refresh()}else{profile=null;
 syncCatalog(null, false);
+syncEconomy(null, false);
 $('mj-panel').hidden=true;
 $('mneme-tab').hidden=true;
 $('constellation').hidden=true;
@@ -34,7 +37,7 @@ if (document.querySelector('#mneme-tab.active')) {
   document.querySelector('nav button[data-page="accueil"]').click();
 }$('net-messages').replaceChildren();$('net-signals').replaceChildren();report('Réseau prêt · connecte-toi ou crée ton compte.')}}
 if(!SUPABASE_URL||!SUPABASE_PUBLISHABLE_KEY){$('catalog-status').textContent='Catalogue en ligne non configuré.';report('Mode local actif : configure config.js et la base Supabase pour activer les vrais messages.')}else{
-try{const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');client=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});syncCatalog=connectCatalog(client);await updateAuth();client.auth.onAuthStateChange(()=>{setTimeout(()=>updateAuth().catch(e=>report(e.message)),0)});setInterval(()=>{if(document.visibilityState==='visible'){if(user)refresh();else syncCatalog(null,false)}},7000)}catch(err){report('Impossible de démarrer Supabase : '+err.message);$('catalog-status').textContent='Connexion au catalogue indisponible.'}
+try{const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');client=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});syncCatalog=connectCatalog(client);syncEconomy=connectEconomy(client);await updateAuth();client.auth.onAuthStateChange(()=>{setTimeout(()=>updateAuth().catch(e=>report(e.message)),0)});setInterval(()=>{if(document.visibilityState==='visible'){if(user)refresh();else syncCatalog(null,false)}},7000)}catch(err){report('Impossible de démarrer Supabase : '+err.message);$('catalog-status').textContent='Connexion au catalogue indisponible.'}
 }
 $('auth-form').onsubmit=async e=>{e.preventDefault();if(!client)return report('Configure d’abord Supabase.');const {error}=await client.auth.signInWithPassword({email:$('auth-email').value.trim(),password:$('auth-pass').value});if(error)report(error.message);else await updateAuth()};
 $('auth-signup').onclick=async()=>{if(!client)return report('Configure d’abord Supabase.');const name=$('auth-name').value.trim();if(name.length<2)return report('Entre un nom de personnage (2 caractères minimum).');const {error,data}=await client.auth.signUp({email:$('auth-email').value.trim(),password:$('auth-pass').value,options:{data:{display_name:name}}});if(error)report(error.message);else report(data.session?'Compte créé et connecté.':'Compte créé. Vérifie ton email pour confirmer ton inscription.')};
