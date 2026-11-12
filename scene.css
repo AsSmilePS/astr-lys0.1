@@ -1,0 +1,84 @@
+#scene-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+body[data-scene="train"], body[data-scene="alert"], body[data-scene="custom"] {
+  isolation: isolate;
+  background: #0a0e14;
+}
+body[data-scene="train"], body[data-scene="alert"] {
+  --wagon-light: #8de6f4;
+  --wagon-edge: #5e929f;
+  --wagon-metal: #202e39;
+  --wagon-panel: #101b25;
+}
+body[data-scene="alert"] {
+  --wagon-light: #ff9881;
+  --wagon-edge: #b06455;
+  --wagon-metal: #3a272d;
+  --wagon-panel: #24171e;
+}
+body[data-scene="train"] #scene-backdrop,
+body[data-scene="alert"] #scene-backdrop {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(16px, 5vw, 90px);
+  align-content: start;
+  padding: 12vh 5vw 0;
+  background:
+    linear-gradient(180deg, #080b10 1%, transparent 12% 54%, #080c13 88%),
+    repeating-linear-gradient(90deg, #0003 0 2px, transparent 2px 9px),
+    var(--wagon-metal);
+}
+#scene-backdrop span {
+  height: clamp(150px, 30vh, 340px);
+  border: clamp(5px, 1vw, 15px) solid #080c12;
+  border-radius: clamp(14px, 3vw, 38px);
+  box-shadow: 0 0 0 1px var(--wagon-edge), inset 0 0 40px #000;
+  background:
+    linear-gradient(153deg, #ecf9ff26, transparent 44%, #ffffff0c 45%, transparent 68%),
+    repeating-linear-gradient(0deg, transparent 0 16%, #acd9ee22 17%, transparent 19% 26%),
+    linear-gradient(180deg, #05080d 15%, #152636 55%, #060a0e 82%);
+}
+body[data-scene="train"] header,
+body[data-scene="alert"] header {
+  border-color: var(--wagon-edge);
+  background: linear-gradient(110deg, var(--wagon-metal), var(--wagon-panel));
+  box-shadow: 0 2px 12px var(--wagon-edge);
+}
+body[data-scene="train"] main > section,
+body[data-scene="alert"] main > section,
+body[data-scene="train"] main nav,
+body[data-scene="alert"] main nav {
+  background: color-mix(in srgb, var(--wagon-panel) 94%, transparent);
+  border-color: var(--wagon-edge);
+  box-shadow: 0 15px 35px #0009;
+}
+body[data-scene="train"] nav .active,
+body[data-scene="alert"] nav .active {
+  color: var(--wagon-light);
+  border-color: var(--wagon-light);
+  background: var(--wagon-panel);
+  box-shadow: 0 0 10px var(--wagon-edge);
+}
+body[data-scene="custom"] #scene-backdrop {
+  display: block;
+  background: linear-gradient(#07091155, #070911bb), var(--scene-image, none) center / cover no-repeat;
+}
+body[data-scene="custom"] #scene-backdrop span { display: none; }
+#scene-banner {
+  padding: .55rem 1rem;
+  margin-bottom: .75rem;
+  border-left: 2px solid var(--wagon-light, #c2a2ff);
+  color: var(--wagon-light, #e4d5ff);
+  background: #090d16d9;
+}
+#scene-desk .row, #shop-admin-form { flex-wrap: wrap; }
+#scene-desk :is(input, select, textarea), #shop-admin-form select { max-width: 100%; }
+#scene-desk label { display: grid; gap: .35rem; min-width: 0; }
+#scene-desk textarea { width: 100%; min-height: 8rem; }
+#scene-desk details { margin-top: 1rem; }
+#scene-desk summary { cursor: pointer; }

@@ -43,9 +43,9 @@ input,textarea,select{background:#0b0e23dd;border-color:#b394f480}input:focus,te
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ASTRÉLYS">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
-</head>
-<body><header><h1>✦ ASTRÉLYS</h1><small>SYSTÈME DES CONSTELLATIONS</small></header>
-<main><nav aria-label="Navigation"><button class="active" data-page="accueil">Accueil</button><button data-page="messages">Messages</button><button data-page="fiche">Ma fiche</button><button data-page="des">Dés</button><button data-page="constellation" id="mneme-tab" hidden>Mnémé ✦</button><button data-page="boutique">Boutique ◈</button>
+<link rel="stylesheet" href="./scene.css?v=10"></head>
+<body><div id="scene-backdrop" aria-hidden="true"><span></span><span></span><span></span></div><header><h1>✦ ASTRÉLYS</h1><small>SYSTÈME DES CONSTELLATIONS</small></header>
+<main><div id="scene-banner" hidden></div><nav aria-label="Navigation"><button id="scene-tab" data-page="scene-desk" hidden>Régie MJ</button><button class="active" data-page="accueil">Accueil</button><button data-page="messages">Messages</button><button data-page="fiche">Ma fiche</button><button data-page="des">Dés</button><button data-page="constellation" id="mneme-tab" hidden>Mnémé ✦</button><button data-page="boutique">Boutique ◈</button>
 <button data-page="joueurs">Joueurs</button><button data-page="journal">Journal</button><button data-page="reseau">Réseau ✧</button></nav>
 <section id="accueil"><div class="system-strip"><span>✦ SYSTÈME ACTIF</span><span>CHAPITRE I — LE RÉVEIL</span><span>ACCÈS : PROTOTYPE LOCAL</span></div><div class="holo-hero"><div><h2>Bienvenue dans le Système</h2><p>Paris. Les constellations observent. Vos choix écrivent l'histoire.</p><p class="muted">Les étoiles ont commencé à vous regarder.</p><button id="notification">✧ Détecter une présence</button><div id="alerte" class="holo-signal" role="status" hidden></div></div><div class="holo-ring" aria-hidden="true"><span>✦</span></div></div></section>
 <section id="messages" hidden><h2>Messages — Démonstration</h2><p class="muted">Ces messages restent sur cet appareil. Ils ne sont pas envoyés à d'autres joueurs.</p><div id="fil"></div><form id="chat" class="row"><input id="texte" placeholder="Écrire un message…" maxlength="300" required aria-label="Votre message"><button>Envoyer</button></form></section>
@@ -77,7 +77,7 @@ input,textarea,select{background:#0b0e23dd;border-color:#b394f480}input:focus,te
       <button type="submit">Créer le chapitre</button>
     </form>
     <p id="chapter-status" class="status" role="status"></p>
-    <form id="shop-admin-form" class="row" style="flex-wrap: wrap;">
+    <form id="shop-admin-form" class="row">
       <label>Objet <select id="shop-edit-item"></select></label>
       <label>Nom <input id="shop-edit-name" maxlength="80" required></label>
       <label>Icône <input id="shop-edit-icon" maxlength="16" placeholder="✦"></label>
@@ -131,7 +131,44 @@ input,textarea,select{background:#0b0e23dd;border-color:#b394f480}input:focus,te
 <section id="constellation" hidden><div class="star">✦</div><h2>MNÉMÉ</h2><p class="muted">Constellation alliée — Relation amicale</p><blockquote>« Je t'observe, Ethan. Continue d'avancer. Tu n'es pas seul. »</blockquote><p>Une présence silencieuse veille sur toi.</p><button id="signe">Recevoir un message de Mnémé</button><div id="signes" aria-live="polite"></div><p class="micro">Les transmissions réelles et privées apparaissent dans l’onglet Réseau.</p></section>
 <section id="joueurs" hidden><h2>Les survivants</h2><p class="muted">Fiches de démonstration. Les statistiques réelles seront définies avec le MJ.</p><div class="cards"><div class="card"><strong>Ethan</strong><span>Joueur · Mnémé : alliée</span></div><div class="card"><strong>Yahkoub</strong><span>Joueur · Constellation inconnue</span></div><div class="card"><strong>Guillaume</strong><span>Joueur · Constellation inconnue</span></div><div class="card"><strong>Noah</strong><span>Joueur · Constellation inconnue</span></div></div></section>
 <section id="journal" hidden><h2>Journal du Système</h2><p class="muted">Notes privées enregistrées uniquement sur ce navigateur.</p><form id="noteform"><textarea id="note" maxlength="500" placeholder="Un événement important s'est produit…" required></textarea><div class="row"><button>Ajouter au journal</button><button type="button" id="exporter">Exporter mes données</button></div></form><div id="notes"></div></section>
-</main><footer>ASTRÉLYS V0.9 · Interface holographique · Réseau optionnel</footer>
+<section id="scene-desk" hidden>
+  <h2>Régie MJ</h2>
+  <div class="holo-panel">
+    <h3>Ambiances</h3>
+    <p id="scene-live"></p>
+    <label>Décor <select id="scene-select"></select></label>
+    <div class="row">
+      <button type="button" id="scene-preview">Prévisualiser</button>
+      <button type="button" id="scene-stop-preview">Quitter l’aperçu</button>
+      <button type="button" id="scene-activate">Activer pour les joueurs</button>
+    </div>
+    <details>
+      <summary>Importer une image de fond</summary>
+      <form id="scene-upload">
+        <label>Nom du décor <input id="scene-name" maxlength="80" required></label>
+        <label>Image JPG, PNG ou WebP · 6 Mo maximum <input id="scene-file" type="file" accept="image/jpeg,image/png,image/webp" required></label>
+        <button type="submit">Ajouter le décor</button>
+      </form>
+    </details>
+    <p id="scene-status" role="status"></p>
+  </div>
+  <div class="holo-grid">
+    <div class="holo-panel"><h3>PNJ</h3><div id="scene-npcs"></div></div>
+    <div class="holo-panel"><h3>Ennemis</h3><div id="scene-enemies"></div></div>
+  </div>
+  <div class="holo-panel">
+    <h3>Écrire une fiche MJ</h3>
+    <form id="scene-dossier-form">
+      <label>Fiche <select id="scene-dossier-select"></select></label>
+      <label>Catégorie <select id="scene-dossier-kind"><option value="pnj">PNJ</option><option value="enemy">Ennemi</option></select></label>
+      <label>Nom <input id="scene-dossier-name" maxlength="80" required></label>
+      <label>Notes MJ <textarea id="scene-dossier-notes" maxlength="4000" required></textarea></label>
+      <button type="submit">Enregistrer la fiche</button>
+    </form>
+    <p id="scene-dossier-status" role="status"></p>
+  </div>
+</section>
+</main><footer>ASTRÉLYS V1.0 · Interface holographique · Réseau optionnel</footer>
 <script>
 const pages=[...document.querySelectorAll('main section')];document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{pages.forEach(s=>s.hidden=s.id!==b.dataset.page);document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x===b))}));
 document.getElementById('notification').addEventListener('click',()=>{(document.getElementById('alerte').hidden=false,document.getElementById('alerte').textContent='✦ CONSTELLATION DÉTECTÉE — MNÉMÉ · ALLIÉE')});
@@ -174,4 +211,4 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service worker:', err)));
 }
 </script>
-<script type="module" src="./network.js?v=09"></script></body></html>
+<script type="module" src="./network.js?v=10"></script></body></html>

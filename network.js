@@ -1,8 +1,9 @@
+import { connectScenes } from './scene.js?v=10';
 import { connectCatalog } from './catalog.js?v=09';
 import { connectEconomy } from './economy.js?v=08';
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from './config.js';
 const $=id=>document.getElementById(id),status=$('net-status');
-let syncCatalog=()=>{}, syncEconomy=()=>{};
+let syncCatalog=()=>{}, syncEconomy=()=>{}, syncScenes=()=>{};
 let client=null,user=null,profiles=[],activeRecipient=null,profile=null;
 const report=(msg)=>{status.textContent=msg};
 const safe=(s)=>String(s||'').slice(0,1000);
@@ -11,6 +12,7 @@ async function loadProfiles(){const {data,error}=await client.from('profiles').s
 
 $('mj-panel').hidden = !isMJ;
 syncEconomy(user.id, isMJ, profiles);
+syncScenes(user.id, isMJ);
 syncCatalog(user.id, isMJ);
 $('mneme-tab').hidden = !isMJ;
 
@@ -29,6 +31,7 @@ async function refresh(){if(!client||!user)return;try{await loadProfiles();const
 async function updateAuth(){const {data:{user:current}}=await client.auth.getUser();user=current;if(user){await refresh()}else{profile=null;
 syncCatalog(null, false);
 syncEconomy(null, false);
+syncScenes(null, false);
 $('mj-panel').hidden=true;
 $('mneme-tab').hidden=true;
 $('constellation').hidden=true;
@@ -37,7 +40,7 @@ if (document.querySelector('#mneme-tab.active')) {
   document.querySelector('nav button[data-page="accueil"]').click();
 }$('net-messages').replaceChildren();$('net-signals').replaceChildren();report('Réseau prêt · connecte-toi ou crée ton compte.')}}
 if(!SUPABASE_URL||!SUPABASE_PUBLISHABLE_KEY){$('catalog-status').textContent='Catalogue en ligne non configuré.';report('Mode local actif : configure config.js et la base Supabase pour activer les vrais messages.')}else{
-try{const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');client=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});syncCatalog=connectCatalog(client);syncEconomy=connectEconomy(client);await updateAuth();client.auth.onAuthStateChange(()=>{setTimeout(()=>updateAuth().catch(e=>report(e.message)),0)});setInterval(()=>{if(document.visibilityState==='visible'){if(user)refresh();else syncCatalog(null,false)}},7000)}catch(err){report('Impossible de démarrer Supabase : '+err.message);$('catalog-status').textContent='Connexion au catalogue indisponible.'}
+try{const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');client=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});syncCatalog=connectCatalog(client);syncEconomy=connectEconomy(client);syncScenes=connectScenes(client);await updateAuth();client.auth.onAuthStateChange(()=>{setTimeout(()=>updateAuth().catch(e=>report(e.message)),0)});setInterval(()=>{if(document.visibilityState==='visible'){if(user)refresh();else syncCatalog(null,false)}},7000)}catch(err){report('Impossible de démarrer Supabase : '+err.message);$('catalog-status').textContent='Connexion au catalogue indisponible.'}
 }
 $('auth-form').onsubmit=async e=>{e.preventDefault();if(!client)return report('Configure d’abord Supabase.');const {error}=await client.auth.signInWithPassword({email:$('auth-email').value.trim(),password:$('auth-pass').value});if(error)report(error.message);else await updateAuth()};
 $('auth-signup').onclick=async()=>{if(!client)return report('Configure d’abord Supabase.');const name=$('auth-name').value.trim();if(name.length<2)return report('Entre un nom de personnage (2 caractères minimum).');const {error,data}=await client.auth.signUp({email:$('auth-email').value.trim(),password:$('auth-pass').value,options:{data:{display_name:name}}});if(error)report(error.message);else report(data.session?'Compte créé et connecté.':'Compte créé. Vérifie ton email pour confirmer ton inscription.')};
