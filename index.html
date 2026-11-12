@@ -62,7 +62,21 @@ input,textarea,select{background:#0b0e23dd;border-color:#b394f480}input:focus,te
   </div>
 
   <h3>✦ Objets disponibles</h3>
+  <p id="catalog-status" class="muted" role="status">Chargement du catalogue…</p>
   <div id="shop-items" class="holo-grid"></div>
+
+  <div id="shop-admin" class="holo-panel" hidden>
+    <h3>Gestion du catalogue · MJ</h3>
+    <form id="shop-admin-form" class="row">
+      <label>Objet <select id="shop-edit-item"></select></label>
+      <label>Nom <input id="shop-edit-name" maxlength="80" required></label>
+      <label>Icône <input id="shop-edit-icon" maxlength="16" placeholder="✦"></label>
+      <label>Prix <input id="shop-edit-price" type="number" min="1" max="999999" required></label>
+      <label><input id="shop-edit-active" type="checkbox" checked> Visible</label>
+      <button id="shop-save" type="submit">Enregistrer</button>
+    </form>
+    <p id="shop-admin-status" class="status" role="status"></p>
+  </div>
 
   <div class="holo-panel" style="margin-top:16px">
     <h3>Historique des achats</h3>
@@ -77,7 +91,7 @@ input,textarea,select{background:#0b0e23dd;border-color:#b394f480}input:focus,te
 <section id="constellation" hidden><div class="star">✦</div><h2>MNÉMÉ</h2><p class="muted">Constellation alliée — Relation amicale</p><blockquote>« Je t'observe, Ethan. Continue d'avancer. Tu n'es pas seul. »</blockquote><p>Une présence silencieuse veille sur toi.</p><button id="signe">Recevoir un message de Mnémé</button><div id="signes" aria-live="polite"></div><p class="micro">Les transmissions réelles et privées apparaissent dans l’onglet Réseau.</p></section>
 <section id="joueurs" hidden><h2>Les survivants</h2><p class="muted">Fiches de démonstration. Les statistiques réelles seront définies avec le MJ.</p><div class="cards"><div class="card"><strong>Ethan</strong><span>Joueur · Mnémé : alliée</span></div><div class="card"><strong>Yahkoub</strong><span>Joueur · Constellation inconnue</span></div><div class="card"><strong>Guillaume</strong><span>Joueur · Constellation inconnue</span></div><div class="card"><strong>Noah</strong><span>Joueur · Constellation inconnue</span></div></div></section>
 <section id="journal" hidden><h2>Journal du Système</h2><p class="muted">Notes privées enregistrées uniquement sur ce navigateur.</p><form id="noteform"><textarea id="note" maxlength="500" placeholder="Un événement important s'est produit…" required></textarea><div class="row"><button>Ajouter au journal</button><button type="button" id="exporter">Exporter mes données</button></div></form><div id="notes"></div></section>
-</main><footer>ASTRÉLYS V0.5 · Interface holographique · Réseau optionnel</footer>
+</main><footer>ASTRÉLYS V0.7 · Interface holographique · Réseau optionnel</footer>
 <script>
 const pages=[...document.querySelectorAll('main section')];document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{pages.forEach(s=>s.hidden=s.id!==b.dataset.page);document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x===b))}));
 document.getElementById('notification').addEventListener('click',()=>{(document.getElementById('alerte').hidden=false,document.getElementById('alerte').textContent='✦ CONSTELLATION DÉTECTÉE — MNÉMÉ · ALLIÉE')});
@@ -107,12 +121,11 @@ const statsEl=document.getElementById('char-stats');defaultStats.forEach(k=>{con
 const inventoryEl=document.getElementById('inventory-list');function renderInventory(){inventoryEl.replaceChildren();charData.inventory.forEach((item,i)=>{const div=document.createElement('div');div.className='stat-line';const text=document.createElement('span');text.textContent=item;const btn=document.createElement('button');btn.textContent='×';btn.setAttribute('aria-label','Supprimer '+item);btn.onclick=()=>{charData.inventory.splice(i,1);saveChar();renderInventory()};div.append(text,btn);inventoryEl.append(div)})}renderInventory();document.getElementById('inventory-form').onsubmit=e=>{e.preventDefault();const inp=document.getElementById('inventory-input');if(!inp.value.trim())return;charData.inventory.push(inp.value.trim());saveChar();renderInventory();inp.value=''};
 
 
-// ASTRÉLYS V0.6 — Boutique interactive
-const shopItems = [
-  { name: 'Potion de soin', price: 30, icon: '🧪' },
-  { name: 'Parchemin de téléportation', price: 80, icon: '📜' },
-  { name: 'Clé mystérieuse', price: 50, icon: '🗝️' }
-];
+let shopItems = [];
+document.addEventListener('astrelys:catalog', ({detail}) => {
+  shopItems = detail;
+  renderShop();
+});
 
 const shopContainer = document.getElementById('shop-items');
 const shopCoinsEl = document.getElementById('shop-coins');
