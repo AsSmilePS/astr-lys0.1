@@ -2,7 +2,7 @@
   "id": "./",
   "name": "ASTRÉLYS — Le Système",
   "short_name": "ASTRÉLYS",
-  "description": "Prototype holographique du JDR ASTRÉLYS",
+  "description": "Application holographique du JDR ASTRÉLYS",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
