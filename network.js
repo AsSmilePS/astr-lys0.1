@@ -1,4 +1,4 @@
-import { connectCatalog } from './catalog.js?v=08';
+import { connectCatalog } from './catalog.js?v=09';
 import { connectEconomy } from './economy.js?v=08';
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from './config.js';
 const $=id=>document.getElementById(id),status=$('net-status');

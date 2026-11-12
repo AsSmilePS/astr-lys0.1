@@ -62,16 +62,27 @@ input,textarea,select{background:#0b0e23dd;border-color:#b394f480}input:focus,te
   </div>
 
   <h3>✦ Objets disponibles</h3>
+  <p id="shop-current-chapter" class="muted"></p>
   <p id="catalog-status" class="muted" role="status">Chargement du catalogue…</p>
   <div id="shop-items" class="holo-grid"></div>
 
   <div id="shop-admin" class="holo-panel" hidden>
     <h3>Gestion du catalogue · MJ</h3>
+    <form id="chapter-activate-form" class="row">
+      <label>Chapitre de la boutique <select id="chapter-activate-select" required></select></label>
+      <button type="submit">Activer ce chapitre</button>
+    </form>
+    <form id="chapter-create-form" class="row">
+      <label>Nouveau chapitre <input id="chapter-name" maxlength="80" required></label>
+      <button type="submit">Créer le chapitre</button>
+    </form>
+    <p id="chapter-status" class="status" role="status"></p>
     <form id="shop-admin-form" class="row">
       <label>Objet <select id="shop-edit-item"></select></label>
       <label>Nom <input id="shop-edit-name" maxlength="80" required></label>
       <label>Icône <input id="shop-edit-icon" maxlength="16" placeholder="✦"></label>
       <label>Prix <input id="shop-edit-price" type="number" min="1" max="999999" required></label>
+      <label>Disponibilité <select id="shop-edit-chapter"></select></label>
       <label><input id="shop-edit-active" type="checkbox" checked> Visible</label>
       <button id="shop-save" type="submit">Enregistrer</button>
     </form>
@@ -120,7 +131,7 @@ input,textarea,select{background:#0b0e23dd;border-color:#b394f480}input:focus,te
 <section id="constellation" hidden><div class="star">✦</div><h2>MNÉMÉ</h2><p class="muted">Constellation alliée — Relation amicale</p><blockquote>« Je t'observe, Ethan. Continue d'avancer. Tu n'es pas seul. »</blockquote><p>Une présence silencieuse veille sur toi.</p><button id="signe">Recevoir un message de Mnémé</button><div id="signes" aria-live="polite"></div><p class="micro">Les transmissions réelles et privées apparaissent dans l’onglet Réseau.</p></section>
 <section id="joueurs" hidden><h2>Les survivants</h2><p class="muted">Fiches de démonstration. Les statistiques réelles seront définies avec le MJ.</p><div class="cards"><div class="card"><strong>Ethan</strong><span>Joueur · Mnémé : alliée</span></div><div class="card"><strong>Yahkoub</strong><span>Joueur · Constellation inconnue</span></div><div class="card"><strong>Guillaume</strong><span>Joueur · Constellation inconnue</span></div><div class="card"><strong>Noah</strong><span>Joueur · Constellation inconnue</span></div></div></section>
 <section id="journal" hidden><h2>Journal du Système</h2><p class="muted">Notes privées enregistrées uniquement sur ce navigateur.</p><form id="noteform"><textarea id="note" maxlength="500" placeholder="Un événement important s'est produit…" required></textarea><div class="row"><button>Ajouter au journal</button><button type="button" id="exporter">Exporter mes données</button></div></form><div id="notes"></div></section>
-</main><footer>ASTRÉLYS V0.8 · Interface holographique · Réseau optionnel</footer>
+</main><footer>ASTRÉLYS V0.9 · Interface holographique · Réseau optionnel</footer>
 <script>
 const pages=[...document.querySelectorAll('main section')];document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{pages.forEach(s=>s.hidden=s.id!==b.dataset.page);document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x===b))}));
 document.getElementById('notification').addEventListener('click',()=>{(document.getElementById('alerte').hidden=false,document.getElementById('alerte').textContent='✦ CONSTELLATION DÉTECTÉE — MNÉMÉ · ALLIÉE')});
@@ -163,4 +174,4 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service worker:', err)));
 }
 </script>
-<script type="module" src="./network.js?v=08"></script></body></html>
+<script type="module" src="./network.js?v=09"></script></body></html>
